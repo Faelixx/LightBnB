@@ -26,7 +26,6 @@ const getUserWithEmail = function (email) {
 
   return pool.query(queryString, values)
 .then((result) => {
-  console.log(result.rows);
   return result.rows[0];
 }).catch((err) => console.log("This is the error message: " + err.message))
 };
@@ -45,7 +44,6 @@ const getUserWithId = function (id) {
 
   return pool.query(queryString, values)
 .then((result) => {
-  console.log(result.rows);
   return result.rows[0];
 }).catch((err) => console.log("This is the error message: " + err.message))
 };
@@ -81,8 +79,31 @@ const addUser = function (user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  const values = [limit, guest_id];
+
+  const queryString = `SELECT reservations.id AS id,
+  properties.title AS title,
+  properties.cost_per_night AS cost_per_night,
+  properties.number_of_bedrooms AS number_of_bedrooms,
+  properties.number_of_bathrooms AS number_of_bathrooms,
+  reservations.start_date AS start_date,
+  reservations.end_date AS end_date,
+  AVG(property_reviews.rating) AS average_rating
+  FROM reservations
+  JOIN properties ON property_id = properties.id
+  JOIN property_reviews ON reservation_id = reservations.id
+  WHERE reservations.guest_id = $2
+  GROUP by reservations.id, properties.id
+  ORDER BY start_date
+  LIMIT $1;`;
+
+  return pool.query(queryString, values)
+.then((result) => {
+  return result.rows;
+}).catch((err) => console.log("This is the error message: " + err.message))
 };
+
+
 
 /// Properties
 
