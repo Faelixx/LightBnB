@@ -9,5 +9,6 @@ JOIN properties ON property_id = properties.id
 JOIN property_reviews ON reservation_id = reservations.id
 WHERE reservations.guest_id = 4
 GROUP by reservations.id, properties.id
+HAVING AVG(property_reviews.rating) > 4
 ORDER BY start_date
 LIMIT 10;
